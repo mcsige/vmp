@@ -373,7 +373,11 @@ class Debugger:
                     print(','.join(hex(c) for c in self.stack)+' -->')
                 elif cmd[0]=='data':
                     if len(cmd)>1:
-                        print(hex(self.data.get(eval(cmd[1])-self.ds)))
+                        a = self.data.get(eval(cmd[1])-self.ds)
+                        if a==None:
+                            print(0)
+                        else:
+                            print(hex(a))
                 elif cmd[0]=='opcode':
                     try:
                         self.log_ori_code()
@@ -414,6 +418,7 @@ class Debugger:
                 elif cmd[0]=='run':
                     t = self.bp
                     self.__init__()
+                    print(t)
                     self.bp = t
                     self.next_bp = False
                     self.run()
