@@ -1,7 +1,7 @@
 import idc
 import os
 
-ed = 0x804DF9A
+ed = 0x804DF9B
 st = 0x804d0c0
 l = []
 for i in range(st,ed):
