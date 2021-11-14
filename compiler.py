@@ -1,9 +1,14 @@
 import sys
 import os
+from util import readcode
 
 class Compiler:
     def __init__(self):
         self.opcodes = []
+        try:
+            self.opcodes = readcode('run_opcodes')
+        except:
+            pass
         self.rip = 0
         self.rip0 = 0
         self.err_code = 'wrong analyse at %s'
@@ -45,7 +50,7 @@ class Compiler:
         return(s)
 
     def log(self,out = 'ase'):
-        f = open(os.path.join(sys.path[0],out),'w')
+        f = open(os.path.join(sys.path[0],'data',out),'w')
         f.writelines(i+'\n' for i in self.comcode)
         f.close()
 
@@ -55,7 +60,7 @@ class Compiler:
 
     def run(self,time = -1):
         t = 0
-        while self.rip<len(self.opcodes) and time!=-1 and t<time:
+        while self.rip<len(self.opcodes) and (time==-1 or t<time):
             t+=1
             self.rip0 = self.rip
             s = ''
