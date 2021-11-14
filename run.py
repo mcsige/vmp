@@ -9,8 +9,10 @@ def run_debugger():
         dbg.run(bp = [])
     except:
         # traceback.print_exc()
-        dbg.log()
         dbg.wrong()
+    finally:
+        dbg.log()
+        print('save ./data/run_log success')
 
 def run_compiler():
     com = Compiler()
@@ -18,8 +20,10 @@ def run_compiler():
         com.run()
     except:
         # traceback.print_exc()
-        com.log()
         com.wrong()
+    finally:
+        com.log()
+        print('save ./data/com_log success')
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='vmp compiler&debugger')

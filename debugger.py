@@ -318,13 +318,16 @@ class Debugger:
                 print()
                 for i in range(len(self.runcode)-min(3,len(self.runcode)),len(self.runcode)):
                     print('     '+self.runcode[i])
-                com = Compiler()
-                com.opcodes = self.opcodes[self.rip:]
-                com.cs = self.cs+self.rip
-                com.run(3)
-                print(' --> '+com.comcode[0])
-                for i in range(1,3):
-                    print('     '+com.comcode[i])
+                try:
+                    com = Compiler()
+                    com.opcodes = self.opcodes[self.rip:]
+                    com.cs = self.cs+self.rip
+                    com.run(3)
+                    print(' --> '+com.comcode[0])
+                    for i in range(1,3):
+                        print('     '+com.comcode[i])
+                except:
+                    pass
                 self.inuse_reg = list(set(self.inuse_reg))
                 print('\nInuse regs:')
                 for i in self.inuse_reg:
