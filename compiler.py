@@ -8,7 +8,7 @@ class Compiler:
         try:
             self.opcodes = readcode('run_opcodes')
         except:
-            pass
+            print('no file data/run_opcodes')
         self.rip = 0
         self.rip0 = 0
         self.err_code = 'wrong analyse at %s'

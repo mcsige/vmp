@@ -20,8 +20,8 @@ class Debugger:
         self.magic = 0x10000
         self.buffer = queue.Queue()
         self.runcode = []
-        self.exe_cmd = ['regs','stack','quit','run','continue','opcode','data','next','for','breakpoint','delete','klear']
-        self.next_bp = False
+        self.exe_cmd = ['regs','stack','quit','run','continue','opcode','data','next','for','breakpoint','delete','klear','help']
+        self.next_bp = True
         self.for_time = 0
         self.for_cmd_list = []
         self.for_p = 0
@@ -33,8 +33,8 @@ class Debugger:
             print(chr(self.reg[0]),end='')
         elif order==4:
             if self.buffer.empty():
-                x = 'packers_and_vms_and_xors_oh_my'
-                # x = input()
+                # x = 'packers_and_vms_and_xors_oh_my'
+                x = input()
                 for i in x:
                     self.buffer.put(ord(i))
                 self.buffer.put(ord('\n'))
@@ -411,10 +411,18 @@ class Debugger:
                 elif cmd[0]=='next':
                     self.next_bp = True
                     break
+                elif cmd[0]=='run':
+                    t = self.bp
+                    self.__init__()
+                    self.bp = t
+                    self.next_bp = False
+                    self.run()
                 elif cmd[0]=='continue':
                     break
                 elif cmd[0]=='quit':
                     exit(0)
+                elif cmd[0]=='help':
+                    pass
                 else:
                     print('Unknown command')
             else:
