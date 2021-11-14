@@ -5,7 +5,7 @@ from util import readcode
 from compiler import Compiler
 
 class Debugger:
-    def __init__(self,bp = []):    
+    def __init__(self):    
         self.opcodes = readcode()
         self.data = {}
         self.rip = 0
@@ -20,20 +20,29 @@ class Debugger:
         self.magic = 0x10000
         self.buffer = queue.Queue()
         self.runcode = []
-        self.exe_cmd = ['regs','stack','quit','run','continue','opcode','data']
+        self.exe_cmd = ['regs','stack','quit','run','continue','opcode','data','next','for']
+        self.next_bp = False
+        self.for_time = 0
+        self.for_cmd_list = []
+        self.for_p = 0
+
+        self.dbg_p = 0
 
     def syscall(self,order):
         if order==0:
             print(chr(self.reg[0]),end='')
         elif order==4:
-            if self.buffer.empty():
-                x = '11111111111111111111111111111'
-                # x = input()
-                for i in x:
-                    self.buffer.put(ord(i))
-                self.buffer.put(ord('\n'))
-            else:
-                self.reg[0] = self.buffer.get()
+            # if self.buffer.empty():
+            #     x = '1234567890qwertyuiopasdfghjklz'
+            #     # x = input()
+            #     for i in x:
+            #         self.buffer.put(ord(i))
+            #     self.buffer.put(ord('\n'))
+            # self.reg[0] = self.buffer.get()
+
+            l = [0x8d, 0x6f, 0x0 , 0x24, 0x98, 0x7c, 0x10, 0x10, 0x9c, 0x60, 0x7 , 0x10, 0x8b, 0x63, 0x10, 0x10, 0x9c, 0x60, 0x7 , 0x10, 0x85, 0x61, 0x11, 0x3c, 0xa2, 0x61, 0xb , 0x10, 0x90, 0x77, 0xa]
+            self.reg[0] = l[self.dbg_p]
+            self.dbg_p+=1
         elif order==0x11:
             t = self.magic
             self.magic+=self.reg[0]
@@ -284,17 +293,18 @@ class Debugger:
                     hex_code+=str(hex(self.opcodes[i]))+' '
                 self.ripj = -1
             self.runcode.append('{name: <8}{ase: <30}{hex}'.format(name=hex(self.cs+self.rip0),ase=s,hex=hex_code))
-            if self.rip in bp:
+            if self.rip in bp or self.next_bp:
+                self.next_bp = False
                 print()
-                for i in range(len(self.runcode)-3,len(self.runcode)):
-                    print(self.runcode[i])
+                for i in range(len(self.runcode)-min(3,len(self.runcode)),len(self.runcode)):
+                    print('     '+self.runcode[i])
                 com = Compiler()
                 com.opcodes = self.opcodes[self.rip:]
                 com.cs = self.cs+self.rip
                 com.run(3)
-                print('------')
-                for i in range(3):
-                    print(com.comcode[i])
+                print(' --> '+com.comcode[0])
+                for i in range(1,3):
+                    print('     '+com.comcode[i])
                 self.cmd()
             if s == 'exit':
                 exit(0)
@@ -302,7 +312,14 @@ class Debugger:
 
     def cmd(self):
         while True:
-            cmd0 = input('>>')
+            if self.for_time==0:
+                cmd0 = input('>>')
+            else:
+                cmd0 = self.for_cmd_list[self.for_p]
+                self.for_p+=1
+                if self.for_p==len(self.for_cmd_list):
+                    self.for_p = 0
+                    self.for_time-=1
             cmd0 = cmd0.split(' ')
             cmd = []
             for i in cmd0:
@@ -315,14 +332,41 @@ class Debugger:
             if len(prob_cmd)==1:
                 cmd[0] = prob_cmd[0]
                 if cmd[0]=='regs':
-                    for i in range(32):
-                        print('reg{} {}'.format(i,hex(self.reg[i])))
-                    print('rip {}'.format(hex(self.cs+self.rip)))
-                    print('flag {}'.format(hex(self.flag)))
+                    if len(cmd)==1:
+                        for i in range(32):
+                            print('reg{} {}'.format(i,hex(self.reg[i])))
+                        print('rip {}'.format(hex(self.cs+self.rip)))
+                        print('flag {}'.format(hex(self.flag)))
+                    else:
+                        if cmd[1].startswith('reg'):
+                            p = int(cmd[1][3:])
+                            print('reg{} {}'.format(p,hex(self.reg[p])))
+                        elif cmd[1]=='rip':
+                            print('rip {}'.format(hex(self.cs+self.rip)))
+                        elif cmd[1]=='flag':
+                            print('flag {}'.format(hex(self.cs+self.rip)))
                 elif cmd[0]=='stack':
                     print(','.join(hex(c) for c in self.stack)+' -->')
                 elif cmd[0]=='opcode':
-                    self.log_ori_code()
+                    try:
+                        self.log_ori_code()
+                        print('sava data/run_opcodes success')
+                    except:
+                        print('sava data/run_opcodes fail')
+                elif cmd[0]=='for':
+                    self.for_time = int(cmd[1])
+                    self.for_p = 0
+                    self.for_cmd_list = []
+                    while True:
+                        for_cmd = input('    ')
+                        if 'exit'==(for_cmd):
+                            self.for_p = 0
+                            break
+                        else:
+                            self.for_cmd_list.append(for_cmd)
+                elif cmd[0]=='next':
+                    self.next_bp = True
+                    break
                 elif cmd[0]=='continue':
                     break
                 elif cmd[0]=='quit':
