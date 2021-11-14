@@ -430,7 +430,19 @@ class Debugger:
                 elif cmd[0]=='quit':
                     exit(0)
                 elif cmd[0]=='help':
-                    pass
+                    print("""
+    regs [reg_name]  Print the values in the register.
+    stack            Print current stack data.
+    quit             Exit program.
+    run              Restart the program.
+    continue         Continue running.
+    opcode           Write the runtime code to./data/run_opcode.txt.
+    data <address>   Print the value of the data segment address.
+    next             Run to next command.
+    for <time>       Write a command segment that loops time times.
+    breakpoint       Set a breakpoint at address.
+    delete <index>   Delete the breakpoint number index.
+    klear            Clear all breakpoints.""")
                 else:
                     print('Unknown command')
             else:

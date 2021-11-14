@@ -20,7 +20,7 @@ python3 run.py -c # run compiler
 
 实现了['regs','stack','quit','run','continue','opcode','data','next','for','breakpoint','delete','klear']的功能，只需输入前几位即可执行指令。
 
-regs < reg0~32 > or regs flag or regs rip：打印寄存器内数值，当仅输入regs时打印所有寄存器数值。
+regs [reg0~32] or regs flag or regs rip：打印寄存器内数值，当仅输入regs时打印所有寄存器数值。
 
 stack：打印当前栈内数据。
 
@@ -49,7 +49,7 @@ reg0 0x103a
 reg0 0x103a
 ```
 
-breakpoint < address >：在address除下一个断点，没有address时，打印所有断点信息。
+breakpoint [address]：在address处下一个断点，没有address时，打印所有断点信息。
 
 delete < index >：删除编号为index的断点。
 
