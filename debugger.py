@@ -20,11 +20,13 @@ class Debugger:
         self.magic = 0x10000
         self.buffer = queue.Queue()
         self.runcode = []
-        self.exe_cmd = ['regs','stack','quit','run','continue','opcode','data','next','for']
+        self.exe_cmd = ['regs','stack','quit','run','continue','opcode','data','next','for','breakpoint','delete','klear']
         self.next_bp = False
         self.for_time = 0
         self.for_cmd_list = []
         self.for_p = 0
+        self.inuse_reg = []
+        self.bp = []
 
     def syscall(self,order):
         if order==0:
@@ -87,16 +89,19 @@ class Debugger:
         if sign==0:
             a = self.reg[self.opcodes[self.rip+2]]
             b = self.reg[self.opcodes[self.rip+3]]
+            self.inuse_reg = [self.opcodes[self.rip+2],self.opcodes[self.rip+3]]
             s = '{}{}reg{},reg{}'.format(name,ss,self.opcodes[self.rip+2],self.opcodes[self.rip+3])
             self.rip+=4
         elif sign==1:
             a = self.reg[self.opcodes[self.rip+2]]
             b = self.dword(3)
+            self.inuse_reg = [self.opcodes[self.rip+2]]
             s = '{}{}reg{},{}'.format(name,ss,self.opcodes[self.rip+2],hex(b))
             self.rip+=7
         elif sign==2:
             a = self.dword(2)
             b = self.reg[self.opcodes[self.rip+6]]
+            self.inuse_reg = [self.opcodes[self.rip+6]]
             s = '{}{}{},reg{}'.format(name,ss,hex(a),self.opcodes[self.rip+6])
             self.rip+=7
         elif sign==4:
@@ -110,8 +115,10 @@ class Debugger:
             self.flag = eval('{}{}{}'.format(a,op,b))
         else:
             self.reg[off] = eval('{}{}{}'.format(a,op,b))
+            self.inuse_reg.append(off)
             if name=='div':
                 self.reg[off_mod] = a%b
+                self.inuse_reg.append(off_mod)
         return(s)
 
     def log(self,out = 'run_log'):
@@ -129,7 +136,7 @@ class Debugger:
         exit(0)
 
     def run(self,bp = []):
-        bp = [i-self.cs for i in bp]
+        self.bp = [i-self.cs for i in bp]
         while self.opcodes[self.rip]!=0x1d:
             self.rip0 = self.rip
             self.ripj = -1
@@ -154,10 +161,12 @@ class Debugger:
             elif self.opcodes[self.rip]==7:
                 s = 'neg reg{},reg{}'.format(self.opcodes[self.rip+1],self.opcodes[self.rip+2])
                 self.reg[self.opcodes[self.rip+1]] = -self.reg[self.opcodes[self.rip+2]]
+                self.inuse_reg = [self.opcodes[self.rip+1],self.opcodes[self.rip+2]]
                 self.rip+=3
             elif self.opcodes[self.rip]==8:
                 s = 'not reg{},reg{}'.format(self.opcodes[self.rip+1],self.opcodes[self.rip+2])
                 self.reg[self.opcodes[self.rip+1]] = ~self.reg[self.opcodes[self.rip+2]]
+                self.inuse_reg = [self.opcodes[self.rip+1],self.opcodes[self.rip+2]]
                 self.rip+=3
             elif self.opcodes[self.rip]==9:
                 s = self.alu(False,'and')
@@ -166,6 +175,7 @@ class Debugger:
             elif self.opcodes[self.rip]==0xb:
                 s = 'isz reg{},reg{}'.format(self.opcodes[self.rip+1],self.opcodes[self.rip+2])
                 self.reg[self.opcodes[self.rip+1]] = self.reg[self.opcodes[self.rip+2]]==0
+                self.inuse_reg = [self.opcodes[self.rip+1],self.opcodes[self.rip+2]]
                 self.rip+=3
             elif self.opcodes[self.rip]==0xc:
                 s = self.alu(False,'shl')
@@ -231,21 +241,26 @@ class Debugger:
                 if sign==1:
                     s = 'mov reg{},{}'.format(self.opcodes[self.rip+2],hex(self.dword(3)))
                     self.reg[self.opcodes[self.rip+2]] = self.dword(3)
+                    self.inuse_reg = [self.opcodes[self.rip+2]]
                     self.rip+=7
                 else:
                     s = 'mov reg{},reg{}'.format(self.opcodes[self.rip+2],self.opcodes[self.rip+3])
                     self.reg[self.opcodes[self.rip+2]] = self.reg[self.opcodes[self.rip+3]]
+                    self.inuse_reg = [self.opcodes[self.rip+2],self.opcodes[self.rip+3]]
                     self.rip+=4
             elif self.opcodes[self.rip]==0x19:
                 s = 'inc reg{}'.format(self.opcodes[self.rip+1])
                 self.reg[self.opcodes[self.rip+1]]+=1
+                self.inuse_reg = [self.opcodes[self.rip+1]]
                 self.rip+=2
             elif self.opcodes[self.rip]==0x1a:
                 s = 'dec reg{}'.format(self.opcodes[self.rip+1])
                 self.reg[self.opcodes[self.rip+1]]-=1
+                self.inuse_reg = [self.opcodes[self.rip+1]]
                 self.rip+=2
             elif self.opcodes[self.rip]==0x1b:
                 s = 'mov reg{},[reg{}]'.format(self.opcodes[self.rip+1],self.opcodes[self.rip+2])
+                self.inuse_reg = [self.opcodes[self.rip+1],self.opcodes[self.rip+2]]
                 if self.reg[self.opcodes[self.rip+2]]<self.ds:
                     self.reg[self.opcodes[self.rip+1]] = self.dword(self.reg[self.opcodes[self.rip+2]]-self.cs-self.rip)
                 else:
@@ -256,6 +271,7 @@ class Debugger:
                 self.rip+=3
             elif self.opcodes[self.rip]==0x1c:
                 s = 'mov [reg{}],reg{}'.format(self.opcodes[self.rip+1],self.opcodes[self.rip+2])
+                self.inuse_reg = [self.opcodes[self.rip+1],self.opcodes[self.rip+2]]
                 if self.reg[self.opcodes[self.rip+1]]<self.ds:
                     for i in range(4):
                         by = int.to_bytes(self.reg[self.opcodes[self.rip+2]],length=4,byteorder='little')
@@ -275,10 +291,12 @@ class Debugger:
                 else:
                     s = 'push reg{}'.format(self.opcodes[self.rip+2])
                     self.stack.append(self.reg[self.opcodes[self.rip+2]])
+                    self.inuse_reg = [self.opcodes[self.rip+2]]
                     self.rip+=3
             elif self.opcodes[self.rip]==0x1f:
                 s = 'pop reg{}'.format(self.opcodes[self.rip+1])
                 self.reg[self.opcodes[self.rip+1]] = self.stack.pop()
+                self.inuse_reg = [self.opcodes[self.rip+1]]
                 self.rip+=2
             elif self.opcodes[self.rip]==0x20:
                 s = 'syscall {}'.format(hex(self.opcodes[self.rip+1]))
@@ -295,7 +313,7 @@ class Debugger:
                     hex_code+=str(hex(self.opcodes[i]))+' '
                 self.ripj = -1
             self.runcode.append('{name: <8}{ase: <30}{hex}'.format(name=hex(self.cs+self.rip0),ase=s,hex=hex_code))
-            if self.rip in bp or self.next_bp:
+            if self.rip in self.bp or self.next_bp:
                 self.next_bp = False
                 print()
                 for i in range(len(self.runcode)-min(3,len(self.runcode)),len(self.runcode)):
@@ -307,6 +325,10 @@ class Debugger:
                 print(' --> '+com.comcode[0])
                 for i in range(1,3):
                     print('     '+com.comcode[i])
+                self.inuse_reg = list(set(self.inuse_reg))
+                print('\nInuse regs:')
+                for i in self.inuse_reg:
+                    print('reg{} {}'.format(i,hex(self.reg[i])))
                 self.cmd()
             if s == 'exit':
                 exit(0)
@@ -358,6 +380,23 @@ class Debugger:
                         print('sava data/run_opcodes success')
                     except:
                         print('sava data/run_opcodes fail')
+                elif cmd[0]=='breakpoint':
+                    if len(cmd)>1:
+                        bp = eval(cmd[1])
+                        bp-=self.cs
+                        self.bp.append(bp)
+                        print('set breakpoint{} at {}'.format(len(self.bp),hex(bp+self.cs)))
+                    else:
+                        for i in range(len(self.bp)):
+                            print('breakpoint{} at {}'.format(1+i,hex(self.bp[i]+self.cs)))
+                elif cmd[0]=='delete':
+                    if len(cmd)>1:
+                        p = int(cmd[1])
+                        print('delete breakpoint{} at {}'.format(p,hex(self.bp[p])))
+                        self.bp.remove(self.bp[p])
+                elif cmd[0]=='klear':
+                    self.bp = []
+                    print('clear the breakpoints')
                 elif cmd[0]=='for':
                     self.for_time = int(cmd[1])
                     self.for_p = 0
