@@ -4,7 +4,7 @@ import traceback
 
 dbg = Debugger()
 try:
-    dbg.run(bp = [])
+    dbg.run(bp = [0x17d9])
 except:
     traceback.print_exc()
     dbg.log()

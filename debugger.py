@@ -26,23 +26,18 @@ class Debugger:
         self.for_cmd_list = []
         self.for_p = 0
 
-        self.dbg_p = 0
-
     def syscall(self,order):
         if order==0:
             print(chr(self.reg[0]),end='')
         elif order==4:
-            # if self.buffer.empty():
-            #     x = '1234567890qwertyuiopasdfghjklz'
-            #     # x = input()
-            #     for i in x:
-            #         self.buffer.put(ord(i))
-            #     self.buffer.put(ord('\n'))
-            # self.reg[0] = self.buffer.get()
+            if self.buffer.empty():
+                x = 'packers_and_vms_and_xors_oh_my'
+                # x = input()
+                for i in x:
+                    self.buffer.put(ord(i))
+                self.buffer.put(ord('\n'))
+            self.reg[0] = self.buffer.get()
 
-            l = [0x8d, 0x6f, 0x0 , 0x24, 0x98, 0x7c, 0x10, 0x10, 0x9c, 0x60, 0x7 , 0x10, 0x8b, 0x63, 0x10, 0x10, 0x9c, 0x60, 0x7 , 0x10, 0x85, 0x61, 0x11, 0x3c, 0xa2, 0x61, 0xb , 0x10, 0x90, 0x77, 0xa]
-            self.reg[0] = l[self.dbg_p]
-            self.dbg_p+=1
         elif order==0x11:
             t = self.magic
             self.magic+=self.reg[0]
@@ -67,7 +62,7 @@ class Debugger:
         elif name=='mul':
             op = '*'
         elif name=='div':
-            op = '/'
+            op = '//'
         elif name=='xor':
             op = '^'
         elif name=='and' or name=='test':
@@ -80,10 +75,15 @@ class Debugger:
             op = '>>'
         a = 0
         b = 0
+        off = 0
+        off_mod = 0
         if not test:
             off = self.opcodes[self.rip+2]
             ss += 'reg%d,'%off
             self.rip+=1
+            if name=='div':
+                off_mod = self.opcodes[self.rip+2]
+                self.rip+=1
         if sign==0:
             a = self.reg[self.opcodes[self.rip+2]]
             b = self.reg[self.opcodes[self.rip+3]]
@@ -110,9 +110,11 @@ class Debugger:
             self.flag = eval('{}{}{}'.format(a,op,b))
         else:
             self.reg[off] = eval('{}{}{}'.format(a,op,b))
+            if name=='div':
+                self.reg[off_mod] = a%b
         return(s)
 
-    def log(self,out = 'hex'):
+    def log(self,out = 'run_log'):
         f = open(os.path.join(sys.path[0],'data',out),'w')
         f.writelines(i+'\n' for i in self.runcode)
         f.close()
@@ -347,6 +349,9 @@ class Debugger:
                             print('flag {}'.format(hex(self.cs+self.rip)))
                 elif cmd[0]=='stack':
                     print(','.join(hex(c) for c in self.stack)+' -->')
+                elif cmd[0]=='data':
+                    if len(cmd)>1:
+                        print(hex(self.data.get(eval(cmd[1])-self.ds)))
                 elif cmd[0]=='opcode':
                     try:
                         self.log_ori_code()

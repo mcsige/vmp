@@ -27,12 +27,13 @@ class Compiler:
         self.rip0 = self.rip
         s = ''
         ss = ' '
-        if name=='add':
-            pass
+        off = 0
         if not test:
             off = self.opcodes[self.rip+2]
             ss += 'reg%d,'%off
             self.rip+=1
+            if name=='div':
+                self.rip+=1
         if sign==0:
             s = '{}{}reg{},reg{}'.format(name,ss,self.opcodes[self.rip+2],self.opcodes[self.rip+3])
             self.rip+=4
@@ -49,7 +50,7 @@ class Compiler:
             self.wrong()
         return(s)
 
-    def log(self,out = 'ase'):
+    def log(self,out = 'com_log'):
         f = open(os.path.join(sys.path[0],'data',out),'w')
         f.writelines(i+'\n' for i in self.comcode)
         f.close()
