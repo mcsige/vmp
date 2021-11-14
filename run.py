@@ -12,7 +12,7 @@ def run_debugger():
         dbg.wrong()
     finally:
         dbg.log()
-        print('save ./data/run_log success')
+        print('save ./data/run_log.txt success')
 
 def run_compiler():
     com = Compiler()
@@ -23,7 +23,7 @@ def run_compiler():
         com.wrong()
     finally:
         com.log()
-        print('save ./data/com_log success')
+        print('save ./data/com_log.txt success')
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='vmp compiler&debugger')

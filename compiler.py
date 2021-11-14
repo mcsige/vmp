@@ -6,9 +6,9 @@ class Compiler:
     def __init__(self):
         self.opcodes = []
         try:
-            self.opcodes = readcode('run_opcodes')
+            self.opcodes = readcode('run_opcodes.txt')
         except:
-            print('no file data/run_opcodes')
+            print('no file data/run_opcodes.txt')
         self.rip = 0
         self.rip0 = 0
         self.err_code = 'wrong analyse at %s'
@@ -50,7 +50,7 @@ class Compiler:
             self.wrong()
         return(s)
 
-    def log(self,out = 'com_log'):
+    def log(self,out = 'com_log.txt'):
         f = open(os.path.join(sys.path[0],'data',out),'w')
         f.writelines(i+'\n' for i in self.comcode)
         f.close()

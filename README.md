@@ -12,7 +12,7 @@ python3 run.py -c # run compiler
 
 ### compiler
 
-运行后日志输出到./data/com_log，格式为地址、汇编码、虚拟机16进制指令。
+运行后日志输出到./data/com_log.txt，格式为地址、汇编码、虚拟机16进制指令。
 
 ### debugger
 
@@ -20,17 +20,17 @@ python3 run.py -c # run compiler
 
 实现了['regs','stack','quit','run','continue','opcode','data','next','for','breakpoint','delete','klear']的功能，只需输入前几位即可执行指令。
 
-regs < reg0~32 > or regs flag or regs rip：打印寄存器内数值，当仅输入regs时打印所有寄存器数值
+regs < reg0~32 > or regs flag or regs rip：打印寄存器内数值，当仅输入regs时打印所有寄存器数值。
 
-stack：打印当前栈内数据
+stack：打印当前栈内数据。
 
-quit：程序退出
+quit：程序退出。
 
-run：重新运行程序
+run：重新运行程序。
 
-continue：继续运行
+continue：继续运行。
 
-opcode：将运行时的代码写入./data/run_opcode（防止如编译器编写中的问题）
+opcode：将运行时的代码写入./data/run_opcode.txt。
 
 data < address >：打印数据段address的值。
 
@@ -57,11 +57,11 @@ klear：清除全部断点。
 
 help：打印帮助文档。
 
-运行后日志输出到./data/run_log。
+运行后日志输出到./data/run_log.txt。
 
 ## Quick Start
 
-IDA打开./file/VMP，IDA(version>=7.5) File->Script file，选择./idascript/pick_code.py，把输出写入新建路径 ./data/opcodes，然后就可以run debugger，并在0x103a处下断点。然后使用opcode命令输出运行时指令到./data/run_opcodes。
+IDA打开./file/VMP，IDA(version>=7.5) File->Script file，选择./idascript/pick_code.py，把输出写入新建路文件./data/opcodes.txt，然后就可以run debugger，并在0x103a处下断点。然后使用opcode命令输出运行时指令到./data/run_opcodes.txt。
 
 ```
 >>b 0x103a
@@ -70,4 +70,4 @@ IDA打开./file/VMP，IDA(version>=7.5) File->Script file，选择./idascript/pi
 
 之后就可以运行compiler了。
 
-获取run_opcodes也可以直接File->Script file，选择./idascript/xor.py，然后再选择./idascript/pick_code.py，把输出写入路径 ./data/run_opcodes。
+获取run_opcodes也可以直接File->Script file，选择./idascript/xor.py，然后再选择./idascript/pick_code.py，把输出写入文件 ./data/run_opcodes.txt。

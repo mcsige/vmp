@@ -121,12 +121,12 @@ class Debugger:
                 self.inuse_reg.append(off_mod)
         return(s)
 
-    def log(self,out = 'run_log'):
+    def log(self,out = 'run_log.txt'):
         f = open(os.path.join(sys.path[0],'data',out),'w')
         f.writelines(i+'\n' for i in self.runcode)
         f.close()
 
-    def log_ori_code(self,out = 'run_opcodes'):
+    def log_run_code(self,out = 'run_opcodes.txt'):
         f = open(os.path.join(sys.path[0],'data',out),'w')
         f.write(str(self.opcodes)[1:-1])
         f.close()
@@ -383,10 +383,10 @@ class Debugger:
                             print(hex(a))
                 elif cmd[0]=='opcode':
                     try:
-                        self.log_ori_code()
-                        print('sava data/run_opcodes success')
+                        self.log_run_code()
+                        print('sava data/run_opcodes.txt success')
                     except:
-                        print('sava data/run_opcodes fail')
+                        print('sava data/run_opcodes.txt fail')
                 elif cmd[0]=='breakpoint':
                     if len(cmd)>1:
                         bp = eval(cmd[1])
