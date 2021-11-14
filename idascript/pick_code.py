@@ -7,7 +7,7 @@ l = []
 for i in range(st,ed):
     l.append(idc.get_wide_byte(i))
 
-print(l)
+print(str(l)[1:-1])
 
 # path = ''
 
