@@ -2,7 +2,7 @@ import sys
 import os
 import queue
 from util import readcode
-from compiler import Compiler
+from disassembler import Compiler
 
 class Debugger:
     def __init__(self):    

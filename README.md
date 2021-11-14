@@ -1,5 +1,5 @@
 # vmp
-vmp debugger&amp;compiler
+vmp debugger&amp;disassembler 
 
 ## Usage
 
@@ -10,7 +10,7 @@ python3 run.py -d # run dubgger
 python3 run.py -c # run compiler
 ```
 
-### compiler
+### disassembler 
 
 运行后日志输出到./data/com_log.txt，格式为地址、汇编码、虚拟机16进制指令。
 
@@ -68,6 +68,6 @@ IDA打开./file/VMP，IDA(version>=7.5) File->Script file，选择./idascript/pi
 >>o
 ```
 
-之后就可以运行compiler了。
+之后就可以运行disassembler了。
 
 获取run_opcodes也可以直接File->Script file，选择./idascript/xor.py，然后再选择./idascript/pick_code.py，把输出写入文件 ./data/run_opcodes.txt。

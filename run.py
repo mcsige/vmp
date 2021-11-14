@@ -1,5 +1,5 @@
 from debugger import Debugger
-from compiler import Compiler
+from disassembler import Compiler
 import traceback
 import argparse
 
@@ -27,7 +27,7 @@ def run_compiler():
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='vmp compiler&debugger')
-    parser.add_argument('-c',action='store_true',help='run compiler with data/run_opcodes')
+    parser.add_argument('-c',action='store_true',help='run decompiler with data/run_opcodes')
     parser.add_argument('-d',action='store_true',help='run debugegr with data/opcodes')
     args = parser.parse_args()
     if args.c:
