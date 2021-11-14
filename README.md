@@ -32,7 +32,7 @@ continue：继续运行。
 
 opcode：将运行时的代码写入./data/run_opcode.txt。
 
-data < address >：打印数据段address的值。
+data <address>：打印数据段address的值。
 
 next：运行至下一条指令。
 
@@ -51,7 +51,7 @@ reg0 0x103a
 
 breakpoint [address]：在address处下一个断点，没有address时，打印所有断点信息。
 
-delete < index >：删除编号为index的断点。
+delete <index>：删除编号为index的断点。
 
 klear：清除全部断点。
 
