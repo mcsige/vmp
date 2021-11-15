@@ -15,7 +15,7 @@ class Debugger:
         self.cs = 0x1000
         self.ds = 0xf000
         self.flag = 0
-        self.stack = []
+        self.stack = [0xed5]
         self.reg = [0]*32
         self.magic = 0x10000
         self.buffer = queue.Queue()
@@ -132,8 +132,7 @@ class Debugger:
         f.close()
 
     def wrong(self):
-        print(self.err_code %hex(self.cs+self.rip0))
-        exit(0)
+        raise ValueError(self.err_code %hex(self.cs+self.rip0))
 
     def run(self,bp = []):
         self.bp = [i-self.cs for i in bp]
@@ -334,7 +333,7 @@ class Debugger:
                     print('reg{} {}'.format(i,hex(self.reg[i])))
                 self.cmd()
             if s == 'exit':
-                exit(0)
+                raise ValueError('debugger exit')
         self.log()
 
     def cmd(self):
@@ -421,14 +420,13 @@ class Debugger:
                 elif cmd[0]=='run':
                     t = self.bp
                     self.__init__()
-                    print(t)
                     self.bp = t
                     self.next_bp = False
-                    self.run()
+                    break
                 elif cmd[0]=='continue':
                     break
                 elif cmd[0]=='quit':
-                    exit(0)
+                    raise ValueError('debugger exit')
                 elif cmd[0]=='help':
                     print("""
     regs [reg_name]  Print the values in the register.

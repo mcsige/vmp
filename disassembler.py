@@ -56,8 +56,7 @@ class Compiler:
         f.close()
 
     def wrong(self):
-        print(self.err_code %hex(self.cs+self.rip0))
-        exit(0)
+        raise ValueError(self.err_code %hex(self.cs+self.rip0))
 
     def run(self,time = -1):
         t = 0
