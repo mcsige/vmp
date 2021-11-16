@@ -20,7 +20,8 @@ class Debugger:
         self.magic = 0x10000
         self.buffer = queue.Queue()
         self.runcode = []
-        self.exe_cmd = ['regs','stack','quit','run','continue','opcode','data','next','for','breakpoint','delete','klear','help']
+        self.exe_cmd = ['regs','stack','quit','run','continue','opcode',
+        'data','next','for','breakpoint','delete','klear','help']
         self.next_bp = True
         self.for_time = 0
         self.for_cmd_list = []
@@ -331,7 +332,10 @@ class Debugger:
                 print('\nInuse regs:')
                 for i in self.inuse_reg:
                     print('reg{} {}'.format(i,hex(self.reg[i])))
-                self.cmd()
+                try:
+                    self.cmd()
+                except:
+                    print('cmd param wrong')
             if s == 'exit':
                 raise ValueError('debugger exit')
         self.log()
