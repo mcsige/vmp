@@ -332,10 +332,7 @@ class Debugger:
                 print('\nInuse regs:')
                 for i in self.inuse_reg:
                     print('reg{} {}'.format(i,hex(self.reg[i])))
-                try:
-                    self.cmd()
-                except:
-                    print('cmd param wrong')
+                self.cmd()
             if s == 'exit':
                 raise ValueError('debugger exit')
         self.log()
