@@ -381,6 +381,14 @@ class Debugger:
                             print(0)
                         else:
                             print(hex(a))
+                    else:
+                        cnt = 0
+                        for i in self.data:
+                            cnt+=1
+                            print(hex(i+self.ds)+' '+hex(self.data[i]),end='  ')
+                            if cnt%4==0:
+                                print()
+                        print()
                 elif cmd[0]=='opcode':
                     try:
                         self.log_run_code()
